@@ -1,0 +1,11 @@
+[Unit]
+Description=Flask App
+After=network.target
+
+[Service]
+User=ubuntu
+ExecStart=/usr/bin/python3 /opt/flaskapp/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

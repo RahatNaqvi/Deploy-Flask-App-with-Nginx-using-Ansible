@@ -1,0 +1,39 @@
+- name: Deploy Flask App with Nginx
+  hosts: local
+  become: yes
+  tasks:
+
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+        state: present
+      loop:
+        - python3-pip
+        - nginx
+
+    - name: Install Flask via pip
+      pip:
+        name: flask
+
+    - name: Copy Flask app to /opt
+      copy:
+        src: files/app.py
+        dest: /opt/app.py
+        mode: '0755'
+
+    - name: Template Nginx config
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Run Flask app in background
+      shell: nohup python3 /opt/app.py &
+      args:
+        creates: /tmp/flask_app_running
+
